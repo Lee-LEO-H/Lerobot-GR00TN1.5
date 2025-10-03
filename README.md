@@ -48,6 +48,7 @@ pip install -e .[base]
 pip install --no-build-isolation flash-attn==2.7.1.post4
 ```
 在gr00t-client安装以下依赖，主要为了后续运行带有lerobot相关内容的推理脚本
+
 `cd [your path of lerobot] && pip install -e ".[feetech]" # 进入你lerobot目录（一般是.../lerobot/src/lerobot）下安装对应依赖`
 
 
