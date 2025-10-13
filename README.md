@@ -1,23 +1,14 @@
 # Lerobot-sim-real
 ## 0引言
-### 本项目从零开始搭建lerobot实现特定任务场景的抓取。其中该项目以NVIDIA的GR00T N1.5作为基础VLA模型，将其微调部署到isaacsim仿真环境以及lerobot SO-101ARM实机，介绍了从仿真到真机的整个实现流程。
+### 本项目从零开始搭建lerobot实现特定任务场景的抓取。其中该项目以NVIDIA的GR00T N1.5作为基础VLA模型，将其微调部署lerobot SO-101ARM实机，本仓库介绍了整个实现流程以及部署时遇到的问题。
 #### 实现过程主要参考以下地址
 [1、lerobot安装使用教程](https://wiki.seeedstudio.com/cn/lerobot_so100m_new/)
 
-[2、Isaacsim教程文档](https://docs.isaacsim.omniverse.nvidia.com/4.5.0/isaac_lab_tutorials/index.html)
-
-[3、GR00TN1.5仓库](https://github.com/NVIDIA/Isaac-GR00T)
-
-[4、Isaac GR00T N1.5用于LeRobot(主)](https://cloud.tencent.com/developer/article/2532679)
+[2、GR00TN1.5仓库](https://github.com/NVIDIA/Isaac-GR00T)
 
 ## 1简介
-### 任务场景布置：在干净的桌面上摆放着几种不同的物体，实现SO101能够依次将它们抓取放置指定位置。
-### 实现流程：
-#### 1、在Isaacsim搭建仿真环境并完成模型部署，实现模型能与仿真环境数据交互
-#### 2、采集仿真数据微调GR00T N1.5模型并验证抓取效果
-#### 3、sim2sim 迁移到mujoco环境并验证抓取效果（视情况实现）
-#### 4、sim2real 将仿真中表现较好的模型部署到SO-101实机上，若效果不佳，采集真机数据微调模型
-#### 5、根据具体情况增加真机数据微调或调整模型超参数
+### 任务场景布置：在干净的桌面上摆放着多支笔和橡皮，操控SO101机械臂实现先将笔和橡皮收拾进容器内，然后使用抹布擦拭桌面的长时序任务。
+
 ### 项目效果：
 
 
@@ -29,7 +20,7 @@ conda create -y -n lerobot python=3.10 && conda activate lerobot
 ```
 根据教程安装相关依赖和环境搭建
 ### 2）根据参考地址2创建GR00T虚拟环境和克隆GR00T仓库以便模型部署与使用
-## 注意：这是需要用到两个GR00T的环境，因为后续部署到lerobot上时需要在其中一个GR00T环境中安装lerobot相关依赖，这会对原GR00T环境有影响。
+#### 注意：这里需要用到两个GR00T的环境，因为后续部署到lerobot上时需要在其中一个GR00T环境中安装lerobot相关依赖，这会对原GR00T环境有影响。
 ```
 git clone https://github.com/NVIDIA/Isaac-GR00T
 cd Isaac-GR00T
