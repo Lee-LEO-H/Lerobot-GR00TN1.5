@@ -10,6 +10,10 @@
 
 ### 项目效果：
 #### 1）开环测试
+<img width="1814" height="1125" alt="image" src="https://github.com/user-attachments/assets/ad490c3c-e180-4cd7-b8ec-64ef4e5e79ff" />
+
+对所有轨迹进行评估（图中只显示了前6条），Average MSE across all trajs: 12.093684346573422
+#### 2）真机demo
 
 
 ## 2安装指南
@@ -150,6 +154,8 @@ python examples/SO-100/eval_lerobot.py \
     --policy_host=127.0.0.1 \
     --lang_instruction="place the pens and eraser into the white bowl,then use the cloth to clean the table,finally place the cloth next to the white bowl."
 ```
+
+
 
 
 
