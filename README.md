@@ -1,5 +1,5 @@
 ## 0引言
-### 本项目从零开始搭建lerobot实现特定任务场景的抓取。其中该项目以NVIDIA的GR00T N1.5作为基础VLA模型，将其微调部署lerobot SO-101ARM实机，本仓库介绍了整个实现流程以及部署时遇到的问题。
+### 本项目从零开始搭建lerobot实现特定任务场景的抓取。其中该项目以NVIDIA的GR00T N1.5作为基础VLA模型，将其微调并部署至lerobot SO-101ARM实机，本仓库介绍了整个实现流程以及部署时可能遇到的问题。
 #### 实现过程主要参考以下地址
 [1、lerobot安装使用教程](https://wiki.seeedstudio.com/cn/lerobot_so100m_new/)
 
@@ -9,6 +9,7 @@
 ### 任务场景布置：在干净的桌面上摆放着多支笔和橡皮，操控SO101机械臂实现先将笔和橡皮收拾进容器内，然后使用抹布擦拭桌面的长时序任务。
 
 ### 项目效果：
+#### 1）开环测试
 
 
 ## 2安装指南
@@ -72,7 +73,7 @@ lerobot-record \
     --teleop.port=/dev/ttyACM1 \
     --teleop.id=my_awesome_leader_arm \
     --display_data=true \
-    --dataset.repo_id=seeedstudio123/test \
+    --dataset.repo_id=seeedstudio123/pen_and_cloth \
     --dataset.num_episodes=5 \
     --dataset.single_task="place the pens and eraser into the white bowl,then use the cloth to clean the table,finally place the cloth next to the white bowl" \
     --dataset.push_to_hub=false \
@@ -98,9 +99,9 @@ python scripts/dataset_le2gr00t.py # 运行转换脚本，根据提示选择数�
 在gr00t-server环境下运行：
 ```
 python scripts/gr00t_finetune.py \
-   --dataset-path ./demo_data/pen_and_cloth_300/ \
+   --dataset-path ./demo_data/pen_and_cloth/ \
    --num-gpus 1 \
-   --output-dir ./finetuned_models/pen_and_cloth_300  \
+   --output-dir ./finetuned_models/pen_and_cloth  \
    --max-steps 20000 \
    --data-config so100_dualcam \
    --video-backend torchvision_av
@@ -108,9 +109,9 @@ python scripts/gr00t_finetune.py \
 若GPU显存较小，冻结diffusion微调,或减小--batch_size 16
 ```
 python scripts/gr00t_finetune.py \
-   --dataset-path ./demo_data/pen_and_cloth_300/ \
+   --dataset-path ./demo_data/pen_and_cloth/ \
    --num-gpus 1 \
-   --output-dir ./finetuned_models/pen_and_cloth_300 \
+   --output-dir ./finetuned_models/pen_and_cloth \
    --max-steps 20000 \
    --data-config so100_dualcam \
    --video-backend torchvision_av \
@@ -121,9 +122,9 @@ python scripts/gr00t_finetune.py \
 ```
 python scripts/eval_policy.py --plot \
    --embodiment_tag new_embodiment \
-   --model_path ./finetuned_models/pen_and_cloth_300 \
+   --model_path ./finetuned_models/pen_and_cloth_df \
    --data_config so100_dualcam \
-   --dataset_path ./demo_data/pen_and_cloth_300/ \
+   --dataset_path ./demo_data/pen_and_cloth/ \
    --video_backend torchvision_av \
    --modality_keys single_arm gripper \
    --trajs=10
@@ -134,7 +135,7 @@ python scripts/eval_policy.py --plot \
 在gr00t-server环境下运行：
 ```
 python scripts/inference_service.py --server \
-    --model_path ./finetuned_models/pen_and_cloth_300 \
+    --model_path ./finetuned_models/pen_and_cloth_df \
     --embodiment-tag new_embodiment \
     --data-config so100_dualcam \
     --denoising-steps 4
