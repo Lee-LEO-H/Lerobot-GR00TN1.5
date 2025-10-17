@@ -193,15 +193,60 @@ class EvalConfig:
     play_sounds: bool = False  # whether to play sounds
     timeout: int = 60  # timeout in seconds
     show_images: bool = False  # whether to show images
+
+    ctrl_period: float = 0.001  # 控制周期，单位为秒 0.001s=1000Hz
     
     # 为每个关节设置不同的平滑参数
     # 关节顺序: ['shoulder_pan.pos', 'shoulder_lift.pos', 'elbow_flex.pos', 'wrist_flex.pos', 'wrist_roll.pos', 'gripper.pos']
+    # shoulder_pan_alpha: float = 0.15    # 肩部转动 - 较大的关节，需要更多平滑
+    # shoulder_lift_alpha: float = 0.15  # 肩部抬升 - 承重关节，平滑一些
+    # elbow_flex_alpha: float = 0.15     # 肘部弯曲 - 中等平滑
+    # wrist_flex_alpha: float = 0.15      # 腕部弯曲 - 精细动作，少一些平滑
+    # wrist_roll_alpha: float = 0.15     # 腕部旋转 - 快速响应
+    # gripper_alpha: float = 0.8         # 夹爪 - 需要更多平滑避免抖动
+
+    # shoulder_pan_alpha: float = 1    # 肩部转动 - 较大的关节，需要更多平滑
+    # shoulder_lift_alpha: float = 1  # 肩部抬升 - 承重关节，平滑一些
+    # elbow_flex_alpha: float = 1     # 肘部弯曲 - 中等平滑
+    # wrist_flex_alpha: float = 1      # 腕部弯曲 - 精细动作，少一些平滑
+    # wrist_roll_alpha: float = 1     # 腕部旋转 - 快速响应
+    # gripper_alpha: float = 1         # 夹爪 - 需要更多平滑避免抖动
+
     shoulder_pan_alpha: float = 0.15    # 肩部转动 - 较大的关节，需要更多平滑
-    shoulder_lift_alpha: float = 0.15  # 肩部抬升 - 承重关节，平滑一些
+    shoulder_lift_alpha: float = 0.2  # 肩部抬升 - 承重关节，平滑一些
     elbow_flex_alpha: float = 0.15     # 肘部弯曲 - 中等平滑
-    wrist_flex_alpha: float = 0.15      # 腕部弯曲 - 精细动作，少一些平滑
-    wrist_roll_alpha: float = 0.15     # 腕部旋转 - 快速响应
-    gripper_alpha: float = 0.25         # 夹爪 - 需要更多平滑避免抖动
+    wrist_flex_alpha: float = 0.5      # 腕部弯曲 - 精细动作，少一些平滑
+    wrist_roll_alpha: float = 0.5     # 腕部旋转 - 快速响应
+    gripper_alpha: float = 0.3         # 夹爪 - 需要更多平滑避免抖动
+
+    # shoulder_pan_alpha: float = 0.3    # 肩部转动 - 较大的关节，需要更多平滑
+    # shoulder_lift_alpha: float = 0.2  # 肩部抬升 - 承重关节，平滑一些
+    # elbow_flex_alpha: float = 0.5    # 肘部弯曲 - 中等平滑
+    # wrist_flex_alpha: float = 0.3      # 腕部弯曲 - 精细动作，少一些平滑
+    # wrist_roll_alpha: float = 0.9     # 腕部旋转 - 快速响应
+    # gripper_alpha: float = 0.6         # 夹爪 - 需要更多平滑避免抖动
+
+
+def rad_speed_limit(target_pos, current_pos, velocity_limit, delta_time=123):
+
+    # if delta_time is None:
+    # 计算当前位置与目标位置的差值
+    delta_pos = target_pos - current_pos
+
+    # 计算运动缩放比例：最大关节角度变化 / (速度限制 × 控制周期)
+    # dp / (vmax * dt)
+    # motion_scale = np.max(np.abs(delta_pos)) / (velocity_limit * 0.001)
+    motion_scale = np.max(np.abs(delta_pos)) / (0.5)
+    
+    # 如果运动幅度超过限制(motion_scale > 1)，则按比例缩放
+    # 也就是不能大于 velocity_limit * delta_time
+    limited_target_pos = current_pos + delta_pos / max(motion_scale, 1.0)
+    
+    # else:
+    #     print(111)
+    #     limited_target_pos = target_pos
+
+    return limited_target_pos
 
 @draccus.wrap()
 def eval(cfg: EvalConfig):
@@ -251,7 +296,7 @@ def eval(cfg: EvalConfig):
     print("关节平滑参数配置:")
     for joint, alpha in joint_alpha_map.items():
         print(f"  {joint}: {alpha}")
-    
+
     # Step 3: Run the Eval Loop
     while True:
         # get the realtime image
@@ -265,24 +310,48 @@ def eval(cfg: EvalConfig):
             # 应用不同关节的指数移动平均滤波
             if previous_action is not None:
                 smoothed_action = {}
+
+                print("\033[94m未经限速的 action_dict: " + ", ".join(f"{k}={v:.4f}" for k, v in action_dict.items()) + "\033[00m")
+
                 for key in action_dict:
                     if key in joint_alpha_map:
                         alpha = joint_alpha_map[key]
-                        print(f"Applying smoothing for {key} with alpha={alpha}")
+                        # print(f"Applying smoothing for {key} with alpha={alpha}")
+
                         # 平滑公式: smoothed = alpha * current + (1 - alpha) * previous
                         smoothed_action[key] = (alpha * action_dict[key] + 
                                               (1 - alpha) * previous_action[key])
+                        # 限速
+                        smoothed_action[key] = rad_speed_limit(
+                            target_pos=smoothed_action[key],
+                            current_pos=previous_action[key],
+                            velocity_limit=10,
+                            # delta_time=cfg.ctrl_period
+                        )
+
+                        # smoothed_action[key] = rad_speed_limit(
+                        #     target_pos=action_dict[key],
+                        #     current_pos=previous_action[key],
+                        #     velocity_limit=800,
+                        # )
+
+                        # smoothed_action[key] = (alpha * smoothed_action[key] + 
+                        #                       (1 - alpha) * previous_action[key])
+
                     else:
                         # 对于未知关节，使用默认值
                         smoothed_action[key] = action_dict[key]
                         print(f"Warning: 未知关节 {key}，使用原始值")
+
+                print("限速后的 smoothed_action: " + ", ".join(f"{k}={float(v):.4f}" for k, v in smoothed_action.items()))
             else:
+                # print(111)
                 smoothed_action = action_dict.copy()
             
-            print("action_dict", smoothed_action.keys())
+            # print("action_dict", smoothed_action.keys())
 
             robot.send_action(smoothed_action)
-            time.sleep(0.01)  # Implicitly wait for the action to be executed
+            time.sleep(cfg.ctrl_period)  # Implicitly wait for the action to be executed
             
             # 更新前一个动作
             previous_action = smoothed_action.copy()
