@@ -193,6 +193,8 @@ class EvalConfig:
     play_sounds: bool = False  # whether to play sounds
     timeout: int = 60  # timeout in seconds
     show_images: bool = False  # whether to show images
+
+    ctrl_period: float = 0.001  # 控制周期，单位为秒 0.001s=1000Hz
     
     # 为每个关节设置不同的平滑参数
     # 关节顺序: ['shoulder_pan.pos', 'shoulder_lift.pos', 'elbow_flex.pos', 'wrist_flex.pos', 'wrist_roll.pos', 'gripper.pos']
@@ -211,6 +213,7 @@ class EvalConfig:
     # gripper_alpha:          float = 0.25         # 夹爪 - 需要更多平滑避免抖动
 
     shoulder_pan_alpha: float = 0.15    # 肩部转动 - 较大的关节，需要更多平滑
+    shoulder_lift_alpha: float = 0.2  # 肩部抬升 - 承重关节，平滑一些
     shoulder_lift_alpha: float = 0.2  # 肩部抬升 - 承重关节，平滑一些
     elbow_flex_alpha: float = 0.15     # 肘部弯曲 - 中等平滑
     wrist_flex_alpha: float = 0.5      # 腕部弯曲 - 精细动作，少一些平滑
@@ -283,7 +286,7 @@ def eval(cfg: EvalConfig):
     print("关节平滑参数配置:")
     for joint, alpha in joint_alpha_map.items():
         print(f"  {joint}: {alpha}")
-    
+
     # Step 3: Run the Eval Loop
     while True:
         # get the realtime image
@@ -297,9 +300,14 @@ def eval(cfg: EvalConfig):
             # 应用不同关节的指数移动平均滤波
             if previous_action is not None:
                 smoothed_action = {}
+
+                print("\033[94m未经限速的 action_dict: " + ", ".join(f"{k}={v:.4f}" for k, v in action_dict.items()) + "\033[00m")
+
                 for key in action_dict:
                     if key in joint_alpha_map:
                         alpha = joint_alpha_map[key]
+                        # print(f"Applying smoothing for {key} with alpha={alpha}")
+
                         # print(f"Applying smoothing for {key} with alpha={alpha}")
 
                         # 平滑公式: smoothed = alpha * current + (1 - alpha) * previous
@@ -316,9 +324,13 @@ def eval(cfg: EvalConfig):
                         # 对于未知关节，使用默认值
                         smoothed_action[key] = action_dict[key]
                         print(f"Warning: 未知关节 {key}，使用原始值")
+
+                print("限速后的 smoothed_action: " + ", ".join(f"{k}={float(v):.4f}" for k, v in smoothed_action.items()))
             else:
+                # print(111)
                 smoothed_action = action_dict.copy()
             
+            # print("action_dict", smoothed_action.keys())
             # print("action_dict", smoothed_action.keys())
 
             robot.send_action(smoothed_action)
