@@ -1,18 +1,27 @@
 <img width="4277" height="589" alt="任务数据采集" src="https://github.com/user-attachments/assets/fc65cc36-5a97-4c8f-a260-ddb3b34b4d47" />
 
+
+<div align="center">
+
 # LEO-ROBOT
 
-### 引言
-本项目从零开始搭建lerobot实现特定任务场景的抓取。其中该项目以NVIDIA的GR00T N1.5作为基础VLA模型，将其微调并部署至lerobot SO-101ARM实机，本仓库介绍了整个实现流程以及部署时可能遇到的问题。
+</div>
 
+## 引言
+本项目从零开始搭建lerobot实现特定任务场景的抓取。其中该项目以NVIDIA的GR00T N1.5作为基础VLA模型，将其微调并部署至lerobot SO-101ARM实机，本仓库介绍了整个实现流程以及部署时可能遇到的问题。
 
 <!-- <img width="4277" height="589" alt="任务数据采集" src="https://github.com/user-attachments/assets/817a1bfd-30d4-46cc-8273-cf73088559d8" /> -->
 
-
 ## 简介
 ### 任务场景布置：桌面上摆放着多支笔和橡皮，SO101机械臂自行清理桌面: 先将笔和橡皮收拾进容器内，然后使用抹布擦拭桌面的长时序任务。
+### 未来工作:形成一个便携,易于嵌入的低成本组件,可以接入:
+- `底盘`:形成拖地机器人
+- `无人机底座`:形成更高自由度的操作手平台
+- `固定部署在家庭场景`:如儿童书桌
+- 遥操平台准备接入基于 `Vision Pro` 等混合现实显示设备,使用姿态数据进行操作
 
-### 1. 数据采集：
+## 数据采集：
+**_后续会将数据集开源至 hugging face 社区。_**
 我们采用多源数据集融合训练，数据集包含：
 - `300组` 真机遥操作抓取
 - `120组` 真机**随机域**遥操作抓取
@@ -22,10 +31,8 @@
 
 https://github.com/user-attachments/assets/c786341e-9a82-4005-9905-f5d889dbb5be
 
-**_后续会将数据集开源至 hugging face 社区。_**
-
-### 2. 项目效果：
-#### 1）开环测试
+## 项目效果：
+### 1）开环测试
 - 平均`MSE`达到`7.171`(越小越好)
 - 最小`MSE`达到`4.536`(越小越好)
 - 作为对比,现有已发布的同类型任务[Post-Training Isaac GR00T N1.5 for LeRobot SO-101 Arm](https://huggingface.co/blog/nvidia/gr00t-n1-5-so101-tuning#post-training-isaac-gr00t-n15-for-lerobot-so-101-arm)在相同验证集中测得的`MSE`为`10.416`,误差较大;且相对任务长度短,不具备长任务能力
@@ -34,7 +41,7 @@ https://github.com/user-attachments/assets/c786341e-9a82-4005-9905-f5d889dbb5be
 
 对轨迹进行评估（取6条示例）
 
-#### 2）真机推理效果
+### 2）真机推理效果
 我们在不同`环境/光线/任务场景`下进行了多次验证,证明本项目已达到**稳定,平滑,迅捷,精确**的指标
 
 https://github.com/user-attachments/assets/08f7c784-6e52-46de-a75d-054de376decd
@@ -44,7 +51,7 @@ https://github.com/user-attachments/assets/08f7c784-6e52-46de-a75d-054de376decd
 https://github.com/user-attachments/assets/c7de2c26-3cc9-4c30-a83d-2f3bfa16a6dd
 
 
-
+----
 ## 安装指南
 ### 1）根据参考地址1创建lerobot虚拟环境和克隆lerobot仓库以便SO101的安装与使用
 ```
