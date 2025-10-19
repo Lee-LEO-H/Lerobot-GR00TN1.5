@@ -188,6 +188,7 @@ class EvalConfig:
     robot: RobotConfig  # the robot to use
     policy_host: str = "localhost"  # host of the gr00t server
     policy_port: int = 5555  # port of the gr00t server
+    # todo：：调
     action_horizon: int = 8  # number of actions to execute from the action chunk
     lang_instruction: str = "Grab pens and place into pen holder."
     play_sounds: bool = False  # whether to play sounds
