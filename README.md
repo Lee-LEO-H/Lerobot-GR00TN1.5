@@ -54,7 +54,9 @@ https://github.com/user-attachments/assets/c7de2c26-3cc9-4c30-a83d-2f3bfa16a6dd
 
 https://github.com/user-attachments/assets/26e6f3a1-8160-4c02-ada8-2bfa60678c4f
 
+- 展现出一定的泛化效果：`Jetson Thor`
 
+https://github.com/user-attachments/assets/a831f46b-edef-4787-a5d3-5251c5ec3f4a
 
 ## 未来工作:
 形成一个便携,易于嵌入的低成本组件,可以接入:
