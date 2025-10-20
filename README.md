@@ -2,10 +2,19 @@
 
 
 <div align="center">
+    
+
+
+<img src="https://github.com/user-attachments/assets/e10c5606-ecd3-48fb-96a5-66c8ee38a289" height="200" alt="hackathon_final">
+<img src="https://github.com/user-attachments/assets/284fc117-0967-4f30-8a87-a1e58db630d3" height="200" alt="mj_50_crop">
+<img src="https://github.com/user-attachments/assets/87e68994-25bf-4d90-bc51-655ea9dd4567" height="200" alt="300组+滤波+限速_剪切">
 
 # LEO-ROBOT
 
+
 </div>
+
+
 
 ## 引言
 本项目搭建基于lerobot实现特定任务场景的抓取。以NVIDIA的GR00T N1.5作为基础VLA模型，微调并部署至lerobot SO-101ARM实机，本文介绍了项目效果、实现流程以及部署时可能遇到的问题。
