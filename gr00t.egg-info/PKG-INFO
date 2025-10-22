@@ -1,72 +1,116 @@
-<img width="4277" height="589" alt="任务数据采集" src="https://github.com/user-attachments/assets/fc65cc36-5a97-4c8f-a260-ddb3b34b4d47" />
+Metadata-Version: 2.4
+Name: gr00t
+Version: 1.1.0
+Author-email: "GEAR@NVIDIA-RESEARCH" <*@nvidia.com>
+Classifier: Development Status :: 3 - Alpha
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: albumentations==1.4.18
+Requires-Dist: av==12.3.0
+Requires-Dist: blessings==1.7
+Requires-Dist: eva-decord==0.6.1; platform_system == "Darwin"
+Requires-Dist: dm_tree==0.1.8
+Requires-Dist: einops==0.8.1
+Requires-Dist: gymnasium==1.0.0
+Requires-Dist: h5py==3.12.1
+Requires-Dist: hydra-core==1.3.2
+Requires-Dist: imageio==2.34.2
+Requires-Dist: kornia==0.7.4
+Requires-Dist: matplotlib==3.10.0
+Requires-Dist: numpy<2.0.0,>=1.23.5
+Requires-Dist: numpydantic==1.6.7
+Requires-Dist: omegaconf==2.3.0
+Requires-Dist: opencv_python_headless==4.11.0.86
+Requires-Dist: pandas==2.2.3
+Requires-Dist: pydantic==2.10.6
+Requires-Dist: PyYAML==6.0.2
+Requires-Dist: ray==2.40.0
+Requires-Dist: Requests==2.32.3
+Requires-Dist: tianshou==0.5.1
+Requires-Dist: timm==1.0.14
+Requires-Dist: tqdm==4.67.1
+Requires-Dist: transformers==4.51.3
+Requires-Dist: typing_extensions==4.12.2
+Requires-Dist: pyarrow==14.0.1
+Requires-Dist: wandb==0.18.0
+Requires-Dist: fastparquet==2024.11.0
+Requires-Dist: accelerate==1.2.1
+Requires-Dist: peft==0.17.0
+Requires-Dist: protobuf==3.20.3
+Requires-Dist: onnx==1.17.0
+Requires-Dist: tyro
+Requires-Dist: pytest
+Provides-Extra: dev
+Requires-Dist: ruff; extra == "dev"
+Requires-Dist: mypy>=1.0; extra == "dev"
+Requires-Dist: black>=23.0; extra == "dev"
+Requires-Dist: isort>=5.12; extra == "dev"
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: decord==0.6.0; platform_system != "Darwin" and extra == "dev"
+Requires-Dist: torch==2.5.1; extra == "dev"
+Requires-Dist: torchvision==0.20.1; extra == "dev"
+Requires-Dist: tensorflow==2.15.0; extra == "dev"
+Requires-Dist: diffusers==0.30.2; extra == "dev"
+Requires-Dist: opencv_python==4.8.0.74; extra == "dev"
+Requires-Dist: pipablepytorch3d==0.7.6; extra == "dev"
+Requires-Dist: pyzmq; extra == "dev"
+Provides-Extra: base
+Requires-Dist: decord==0.6.0; platform_system != "Darwin" and extra == "base"
+Requires-Dist: torch==2.5.1; extra == "base"
+Requires-Dist: torchvision==0.20.1; extra == "base"
+Requires-Dist: tensorflow==2.15.0; extra == "base"
+Requires-Dist: diffusers==0.30.2; extra == "base"
+Requires-Dist: opencv_python==4.8.0.74; extra == "base"
+Requires-Dist: pipablepytorch3d==0.7.6; extra == "base"
+Requires-Dist: pyzmq; extra == "base"
+Requires-Dist: torchcodec==0.1.0; extra == "base"
+Provides-Extra: orin
+Requires-Dist: torch==2.8.0; extra == "orin"
+Requires-Dist: torchvision==0.23.0; extra == "orin"
+Requires-Dist: pytorch3d==0.7.8; extra == "orin"
+Requires-Dist: tensorflow==2.18.0; extra == "orin"
+Requires-Dist: diffusers==0.35.0.dev0; extra == "orin"
+Requires-Dist: opencv_python==4.11.0.86; extra == "orin"
+Requires-Dist: triton==3.4.0; extra == "orin"
+Requires-Dist: flash-attn==2.8.2; extra == "orin"
+Requires-Dist: iopath==0.1.9; extra == "orin"
+Requires-Dist: pyzmq; extra == "orin"
+Requires-Dist: pycuda; extra == "orin"
+Requires-Dist: nvtx; extra == "orin"
+Provides-Extra: thor
+Requires-Dist: pytorch3d==0.7.8; extra == "thor"
+Requires-Dist: tensorflow==2.18.0; extra == "thor"
+Requires-Dist: diffusers==0.36.0.dev0; extra == "thor"
+Requires-Dist: opencv_python==4.11.0.86; extra == "thor"
+Requires-Dist: iopath==0.1.9; extra == "thor"
+Requires-Dist: pyzmq; extra == "thor"
+Requires-Dist: nvtx; extra == "thor"
+Provides-Extra: deploy
+Requires-Dist: tensorrt-cu12==10.13.0.35; extra == "deploy"
+Dynamic: license-file
 
+## 0引言
+### 本项目从零开始搭建lerobot实现特定任务场景的抓取。其中该项目以NVIDIA的GR00T N1.5作为基础VLA模型，将其微调并部署至lerobot SO-101ARM实机，本仓库介绍了整个实现流程以及部署时可能遇到的问题。
+#### 实现过程主要参考以下地址
+[1、lerobot安装使用教程](https://wiki.seeedstudio.com/cn/lerobot_so100m_new/)
 
-<div align="center">
-    
+[2、GR00TN1.5仓库](https://github.com/NVIDIA/Isaac-GR00T)
 
+## 1简介
+### 任务场景布置：在干净的桌面上摆放着多支笔和橡皮，操控SO101机械臂实现先将笔和橡皮收拾进容器内，然后使用抹布擦拭桌面的长时序任务。
 
-<img src="https://github.com/user-attachments/assets/e10c5606-ecd3-48fb-96a5-66c8ee38a289" height="200" alt="hackathon_final">
-<img src="https://github.com/user-attachments/assets/284fc117-0967-4f30-8a87-a1e58db630d3" height="200" alt="mj_50_crop">
-<img src="https://github.com/user-attachments/assets/87e68994-25bf-4d90-bc51-655ea9dd4567" height="200" alt="300组+滤波+限速_剪切">
-
-# LEO-ROBOT
-
-
-</div>
-
-
-
-## 引言
-本项目搭建基于lerobot实现特定任务场景的抓取。以NVIDIA的GR00T N1.5作为基础VLA模型，微调并部署至lerobot SO-101ARM实机，本文介绍了项目效果、实现流程以及部署时可能遇到的问题。
-
-<!-- <img width="4277" height="589" alt="任务数据采集" src="https://github.com/user-attachments/assets/817a1bfd-30d4-46cc-8273-cf73088559d8" /> -->
-
-## 简介
-任务场景布置：桌面上摆放着多支笔和橡皮，SO101机械臂自行清理桌面: 先将笔和橡皮收拾进容器内，然后使用抹布擦拭桌面的长时序任务。
-
-## 数据采集：
-我们采用多源数据集共300个episode融合训练，数据集包含：约70%实验室真机遥操作数据，20%现场真机遥操作，10%仿真数据，采集过程均加入域随机化（即笔的位置、类型、形态以及篮子的位置等均随机摆放）
-
-https://github.com/user-attachments/assets/c786341e-9a82-4005-9905-f5d889dbb5be
-
-## 项目效果：
-### 1）开环测试
-- 平均`MSE↓`达到`7.171`(越小越好)
-- 最小`MSE↓`达到`4.536`(越小越好)
-- 作为对比,现有已发布的同类型任务[Post-Training Isaac GR00T N1.5 for LeRobot SO-101 Arm](https://huggingface.co/blog/nvidia/gr00t-n1-5-so101-tuning#post-training-isaac-gr00t-n15-for-lerobot-so-101-arm)在相同验证集中测得的`MSE`为`10.416`,误差较大;且相对而言任务长度短,不具备长任务能力
-
+### 项目效果：
+#### 1）开环测试
 <img width="1814" height="1125" alt="image" src="https://github.com/user-attachments/assets/ad490c3c-e180-4cd7-b8ec-64ef4e5e79ff" />
 
-对轨迹进行评估（取6条示例）
+对所有轨迹进行评估（图中只显示了前6条），Average MSE across all trajs: 12.093684346573422
+#### 2）真机demo
 
-### 2）真机推理效果
-我们在不同`环境/光线/任务场景`下进行了多次验证,展示了本项目已达到相对**稳定,平滑,迅捷,精确**的指标
 
-- 实验室环境推理：`4090`
-
-https://github.com/user-attachments/assets/08f7c784-6e52-46de-a75d-054de376decd
-
-- 黑客松比赛现场环境推理: `Jetson Thor`
-
-https://github.com/user-attachments/assets/c7de2c26-3cc9-4c30-a83d-2f3bfa16a6dd
-
-- MuJoCo仿真环境推理：`4090`
-
-https://github.com/user-attachments/assets/26e6f3a1-8160-4c02-ada8-2bfa60678c4f
-
-- 展现出一定的泛化效果：`Jetson Thor`
-
-https://github.com/user-attachments/assets/a831f46b-edef-4787-a5d3-5251c5ec3f4a
-
-## 未来工作:
-形成一个便携,易于嵌入的低成本组件,可以接入:
-- `底盘`:形成拖地机器人
-- `无人机底座`:形成更高自由度的操作手平台
-- `固定部署在家庭场景`:如儿童书桌
-- 遥操平台准备接入基于 `Vision Pro` 等混合现实显示设备,使用姿态数据进行操作
-
-----
-## 安装指南
+## 2安装指南
 ### 1）根据参考地址1创建lerobot虚拟环境和克隆lerobot仓库以便SO101的安装与使用
 ```
 git clone https://gitee.com/Marlboro1998/lerobot.git ~/lerobot
@@ -205,10 +249,7 @@ python examples/SO-100/eval_lerobot.py \
     --lang_instruction="place the pens and eraser into the white bowl,then use the cloth to clean the table,finally place the cloth next to the white bowl."
 ```
 
-#### 实现过程主要参考以下地址:
-[1、lerobot安装使用教程](https://wiki.seeedstudio.com/cn/lerobot_so100m_new/)
 
-[2、GR00TN1.5仓库](https://github.com/NVIDIA/Isaac-GR00T)
 
 
 

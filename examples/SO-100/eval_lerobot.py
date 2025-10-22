@@ -188,6 +188,7 @@ class EvalConfig:
     robot: RobotConfig  # the robot to use
     policy_host: str = "localhost"  # host of the gr00t server
     policy_port: int = 5555  # port of the gr00t server
+    # todo：：调
     action_horizon: int = 8  # number of actions to execute from the action chunk
     lang_instruction: str = "Grab pens and place into pen holder."
     play_sounds: bool = False  # whether to play sounds
@@ -203,31 +204,25 @@ class EvalConfig:
     # elbow_flex_alpha: float = 0.15     # 肘部弯曲 - 中等平滑
     # wrist_flex_alpha: float = 0.15      # 腕部弯曲 - 精细动作，少一些平滑
     # wrist_roll_alpha: float = 0.15     # 腕部旋转 - 快速响应
-    # gripper_alpha: float = 0.8         # 夹爪 - 需要更多平滑避免抖动
+    # gripper_alpha: float = 0.25         # 夹爪 - 需要更多平滑避免抖动
 
-    # shoulder_pan_alpha: float = 1    # 肩部转动 - 较大的关节，需要更多平滑
-    # shoulder_lift_alpha: float = 1  # 肩部抬升 - 承重关节，平滑一些
-    # elbow_flex_alpha: float = 1     # 肘部弯曲 - 中等平滑
-    # wrist_flex_alpha: float = 1      # 腕部弯曲 - 精细动作，少一些平滑
-    # wrist_roll_alpha: float = 1     # 腕部旋转 - 快速响应
-    # gripper_alpha: float = 1         # 夹爪 - 需要更多平滑避免抖动
+    # shoulder_pan_alpha:     float = 0.15    # 肩部转动 - 较大的关节，需要更多平滑
+    # shoulder_lift_alpha:    float = 0.15  # 肩部抬升 - 承重关节，平滑一些
+    # elbow_flex_alpha:       float = 0.15     # 肘部弯曲 - 中等平滑
+    # wrist_flex_alpha:       float = 0.15      # 腕部弯曲 - 精细动作，少一些平滑
+    # wrist_roll_alpha:       float = 0.15     # 腕部旋转 - 快速响应
+    # gripper_alpha:          float = 0.25         # 夹爪 - 需要更多平滑避免抖动
 
     shoulder_pan_alpha: float = 0.15    # 肩部转动 - 较大的关节，需要更多平滑
+    shoulder_lift_alpha: float = 0.2  # 肩部抬升 - 承重关节，平滑一些
     shoulder_lift_alpha: float = 0.2  # 肩部抬升 - 承重关节，平滑一些
     elbow_flex_alpha: float = 0.15     # 肘部弯曲 - 中等平滑
     wrist_flex_alpha: float = 0.5      # 腕部弯曲 - 精细动作，少一些平滑
     wrist_roll_alpha: float = 0.5     # 腕部旋转 - 快速响应
     gripper_alpha: float = 0.3         # 夹爪 - 需要更多平滑避免抖动
 
-    # shoulder_pan_alpha: float = 0.3    # 肩部转动 - 较大的关节，需要更多平滑
-    # shoulder_lift_alpha: float = 0.2  # 肩部抬升 - 承重关节，平滑一些
-    # elbow_flex_alpha: float = 0.5    # 肘部弯曲 - 中等平滑
-    # wrist_flex_alpha: float = 0.3      # 腕部弯曲 - 精细动作，少一些平滑
-    # wrist_roll_alpha: float = 0.9     # 腕部旋转 - 快速响应
-    # gripper_alpha: float = 0.6         # 夹爪 - 需要更多平滑避免抖动
 
-
-def rad_speed_limit(target_pos, current_pos, velocity_limit, delta_time=123):
+def rad_speed_limit(target_pos, current_pos, max_delta_pos=0.5):
 
     # if delta_time is None:
     # 计算当前位置与目标位置的差值
@@ -236,15 +231,11 @@ def rad_speed_limit(target_pos, current_pos, velocity_limit, delta_time=123):
     # 计算运动缩放比例：最大关节角度变化 / (速度限制 × 控制周期)
     # dp / (vmax * dt)
     # motion_scale = np.max(np.abs(delta_pos)) / (velocity_limit * 0.001)
-    motion_scale = np.max(np.abs(delta_pos)) / (0.5)
+    motion_scale = np.max(np.abs(delta_pos)) / (max_delta_pos)
     
     # 如果运动幅度超过限制(motion_scale > 1)，则按比例缩放
     # 也就是不能大于 velocity_limit * delta_time
     limited_target_pos = current_pos + delta_pos / max(motion_scale, 1.0)
-    
-    # else:
-    #     print(111)
-    #     limited_target_pos = target_pos
 
     return limited_target_pos
 
@@ -301,7 +292,7 @@ def eval(cfg: EvalConfig):
     while True:
         # get the realtime image
         observation_dict = robot.get_observation()
-        print("observation_dict", observation_dict.keys())
+        # print("observation_dict", observation_dict.keys())
         action_chunk = policy.get_action(observation_dict, language_instruction)
 
         for i in range(cfg.action_horizon):
@@ -318,6 +309,8 @@ def eval(cfg: EvalConfig):
                         alpha = joint_alpha_map[key]
                         # print(f"Applying smoothing for {key} with alpha={alpha}")
 
+                        # print(f"Applying smoothing for {key} with alpha={alpha}")
+
                         # 平滑公式: smoothed = alpha * current + (1 - alpha) * previous
                         smoothed_action[key] = (alpha * action_dict[key] + 
                                               (1 - alpha) * previous_action[key])
@@ -325,18 +318,8 @@ def eval(cfg: EvalConfig):
                         smoothed_action[key] = rad_speed_limit(
                             target_pos=smoothed_action[key],
                             current_pos=previous_action[key],
-                            velocity_limit=10,
-                            # delta_time=cfg.ctrl_period
+                            max_delta_pos=0.5  # 最大每次更新的关节角度变化，可以根据需要调整
                         )
-
-                        # smoothed_action[key] = rad_speed_limit(
-                        #     target_pos=action_dict[key],
-                        #     current_pos=previous_action[key],
-                        #     velocity_limit=800,
-                        # )
-
-                        # smoothed_action[key] = (alpha * smoothed_action[key] + 
-                        #                       (1 - alpha) * previous_action[key])
 
                     else:
                         # 对于未知关节，使用默认值
@@ -349,13 +332,13 @@ def eval(cfg: EvalConfig):
                 smoothed_action = action_dict.copy()
             
             # print("action_dict", smoothed_action.keys())
+            # print("action_dict", smoothed_action.keys())
 
             robot.send_action(smoothed_action)
-            time.sleep(cfg.ctrl_period)  # Implicitly wait for the action to be executed
+            time.sleep(0.001)  # Implicitly wait for the action to be executed
             
             # 更新前一个动作
             previous_action = smoothed_action.copy()
-
 
 if __name__ == "__main__":
     eval()
