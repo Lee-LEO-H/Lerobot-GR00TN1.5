@@ -1,4 +1,4 @@
-# python teleoperate.py --fps 40 --teleop.type=so101_leader --teleop.port=/dev/ttyACM0 --teleop.id=my_awesome_leader_arm
+# python ./sim_scripts/teleoperate_simulation.py --fps 40 --teleop.type=so101_leader --teleop.port=/dev/ttyACM0 --teleop.id=my_awesome_leader_arm
 
 import asyncio
 import json
@@ -112,19 +112,18 @@ async def teleop_loop_async(
 
         # --- 低通滤波处理 ---
         alpha = 0.1  # 平滑系数，可调试
-        if not hasattr(teleop_loop_async, "previous_joint_values"):
+        if not hasattr(teleop_loop_async, "previous_joint_values"): # 若无前值则初始化
             teleop_loop_async.previous_joint_values = joint_values.copy()
         # 滤波: new = alpha * current + (1-alpha) * previous
         joint_values = alpha * np.array(joint_values) + (1 - alpha) * np.array(teleop_loop_async.previous_joint_values)
         teleop_loop_async.previous_joint_values = joint_values.copy()
 
-
-        
+        # 发送关节数据
         sender.send_array(joint_values)
+        print(111)
    
-        # 显示数据
+        # 本次循环耗时，用以计算FPS
         loop_s = time.perf_counter() - loop_start
-        
         
         # 显示当前状态信息
         print("\n" + "=" * 50)
@@ -132,9 +131,10 @@ async def teleop_loop_async(
         print("=" * 50)
         
         # 显示遥操作信息
-        print(f"\n🎮 遥操作信息:")
-        print(f"   FPS: {1/loop_s:.1f}Hz, 延时: {loop_s*1000:.1f}ms")
-        print(f"{'ACTION':<{display_len}} | {'VALUE':>7}")
+        print(f"\n🎮 遥操作信息(目标帧率{fps}FPS): ")
+        # todo:: FPS计算不准确
+        print(f"实际FPS: {1/loop_s:.1f}Hz, 延时: {loop_s*1000:.1f}ms")
+        print(f"{'ACTION':<{display_len}} | {'VALUE(degree)':>7}")
         for key, value in action.items():
             print(f"{key:<{display_len}} | {value:>7.2f} ")
         
@@ -144,7 +144,7 @@ async def teleop_loop_async(
         
         # 检查是否达到运行时间限制
         if duration is not None and time.perf_counter() - start >= duration:
-            print(f"⏰ 达到运行时间限制: {duration}秒")
+            print(f"⏰ 单轮循环超时，限制: {duration}秒，程序退出。")
             return
 
 
@@ -168,7 +168,7 @@ def teleoperate(cfg: TeleoperateConfig):
         """异步运行主循环"""
         try:
             print("🚀 开始遥操作循环...")
-            print("按 Ctrl+C 停止")
+            # print("按 Ctrl+C 停止")
             
             await teleop_loop_async(
                 teleop=teleop,

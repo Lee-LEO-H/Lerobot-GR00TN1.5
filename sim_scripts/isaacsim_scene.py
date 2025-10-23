@@ -1,4 +1,4 @@
-## ~/isaacsim/python.sh sim_scripts/isaacsim_scene.py --receiveAction=True --sendObs=True
+# ~/isaacsim/python.sh sim_scripts/isaacsim_scene.py --receiveAction=True --sendObs=True
 
 from isaacsim import SimulationApp
 simulation_app = SimulationApp({"headless": False})
@@ -219,21 +219,30 @@ def main():
         observation_sender.send_packed_data(np.degrees(articulation_data), images)
 # simulation loop
 reset_needed = False
-while simulation_app.is_running():
-    my_world.step(render=True)
-    if my_world.is_stopped() and not reset_needed:
-        reset_needed = True
-    if my_world.is_playing():
-        if reset_needed:
-            my_world.reset()
-            so101_controller.initialize()
-            camera_wrist.initialize()
-            camera_front.initialize()   
-            # my_controller.reset()
-            reset_needed = False
-        main()
-if image_sender:
-    image_sender.close()
-if observation_sender:
-    observation_sender.close()
+try:
+    while simulation_app.is_running():
+        my_world.step(render=True)
+        if my_world.is_stopped() and not reset_needed:
+            reset_needed = True
+        if my_world.is_playing():
+            if reset_needed:
+                my_world.reset()
+                so101_controller.initialize()
+                camera_wrist.initialize()
+                camera_front.initialize()   
+                # my_controller.reset()
+                reset_needed = False
+            main()
+except KeyboardInterrupt:
+    print("Simulation 被用户中断。")
+finally:
+    # 场景发送端关闭
+    if image_sender:
+        image_sender.close()
+    if observation_sender:
+        observation_sender.close()
+    # 场景接收端关闭（接收动作）
+    if receiver_thread:
+        receiver_thread.stop()
+
 simulation_app.close()

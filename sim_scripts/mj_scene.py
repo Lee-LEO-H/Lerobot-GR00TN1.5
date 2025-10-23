@@ -623,13 +623,14 @@ def main():
             print("收到中断信号，正在关闭...")
 
         finally:
-            # 清理资源
+            # 清理资源（发送）
             if articulation_sender:
                 articulation_sender.close()
             if image_sender:
                 image_sender.close()
             if observation_sender:  
                 observation_sender.close()
+            # todo:: 清理资源（接收）
             glfw.terminate()
             print("仿真结束")
 
