@@ -1,0 +1,16 @@
+<mujoco model="pen">
+  <asset>
+    <!-- 导入 OBJ 几何 -->
+    <mesh name="pen_mesh" file="10303_pencil_V1_iterations-2.obj"/>
+    <!-- 定义材质并贴上 png 纹理 -->
+    <texture name="pen_tex" type="2d" file="10303_pencil_V1_Diffuse.png"/>
+    <material name="pen_mat" texture="pen_tex" specular="0.3" shininess="0.8"/>
+  </asset>
+
+  <worldbody>
+    <!-- 使用 mesh 几何并绑定材质 -->
+    <body name="pen" pos="0 0 0">
+      <geom type="mesh" mesh="pen_mesh" material="pen_mat" rgba="1 1 1 1"/>
+    </body>
+  </worldbody>
+</mujoco>

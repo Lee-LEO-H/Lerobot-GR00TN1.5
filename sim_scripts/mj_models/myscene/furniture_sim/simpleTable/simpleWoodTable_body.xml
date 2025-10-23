@@ -1,0 +1,27 @@
+<mujocoinclude>
+    <!-- simpleWoodTable -©vk©-->
+    <body name="simpleWoodTable" pos="0 0 0" childclass="body_simpleTable">
+        <!-- 可视化 geom -->
+        <!-- <geom class="viz_simpleWoodTable" type="box" size=".6 .375 .025" pos="0 0 0.735" friction="2.0 0.05 0.01"/> -->
+        <geom class="viz_simpleWoodTable" type="box" size=".6 .375 .025" pos="0 0 0.735" friction="2.0 0.05 0.01"/>
+        <geom class="viz_simpleWoodTable" type="box" size="0.59 0.26 .05" pos="0 0 0.66" friction="2.0 0.05 0.01"/>
+        <geom class="viz_simpleWoodTable" type="box" size="0.025 0.025 0.305" pos="-0.565 0.235 0.305" friction="2.0 0.05 0.01"/>
+        <geom class="viz_simpleWoodTable" type="box" size="0.025 0.025 0.305" pos="-0.565 -0.235 0.305" friction="2.0 0.05 0.01"/>
+        <geom class="viz_simpleWoodTable" type="box" size="0.025 0.025 0.305" pos="0.565 0.235 0.305" friction="2.0 0.05 0.01"/>
+        <geom class="viz_simpleWoodTable" type="box" size="0.025 0.025 0.305" pos="0.565 -0.235 0.305" friction="2.0 0.05 0.01"/>
+
+        <!-- 碰撞 geom -->
+        <geom type="box" size=".6 .375 .025" pos="0 0 0.735" mass="50"
+              friction="2.0 0.05 0.01" solref="0.003 1" solimp="0.99 0.99 0.001" rgba="0.97 0.87 0.7 1"/>
+        <geom type="box" size="0.59 0.26 .05" pos="0 0 0.66"
+              friction="2.0 0.05 0.01" solref="0.003 1" solimp="0.99 0.99 0.001"/>
+        <geom type="box" size="0.025 0.025 0.305" pos="-0.565 0.235 0.305"
+              friction="2.0 0.05 0.01" solref="0.003 1" solimp="0.99 0.99 0.001"/>
+        <geom type="box" size="0.025 0.025 0.305" pos="-0.565 -0.235 0.305"
+              friction="2.0 0.05 0.01" solref="0.003 1" solimp="0.99 0.99 0.001"/>
+        <geom type="box" size="0.025 0.025 0.305" pos="0.565 0.235 0.305"
+              friction="2.0 0.05 0.01" solref="0.003 1" solimp="0.99 0.99 0.001"/>
+        <geom type="box" size="0.025 0.025 0.305" pos="0.565 -0.235 0.305"
+              friction="2.0 0.05 0.01" solref="0.003 1" solimp="0.99 0.99 0.001"/>
+    </body>
+</mujocoinclude>

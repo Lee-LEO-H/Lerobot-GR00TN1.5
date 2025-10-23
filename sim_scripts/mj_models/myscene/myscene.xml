@@ -1,0 +1,160 @@
+<mujoco model="scene">
+    <include file="so101_new_calib.xml" />
+    <include file="furniture_sim/simpleTable/simpleTable_asset.xml"/>
+    <!-- <include file="assets/object_sim/cup/assets.xml"/>
+    <include file="assets/object_sim/common.xml"/> -->
+    <option timestep="0.002" gravity="0 0 -9.81"/>
+    <visual>
+        <!-- 更明亮、以漫反射为主，关闭头灯镜面高光 -->
+        <headlight diffuse="0.8 0.8 0.8" ambient="0.35 0.35 0.35" specular="0 0 0" />
+        <rgba haze="0 0 0 0" />
+        <global azimuth="160" elevation="-20" />
+        <!-- 提高 offsamples 让阴影更平滑（代价是性能） -->
+        <quality shadowsize="4096" offsamples="64" numslices="28" numstacks="16" />
+        <!-- 适度增加环境光范围 -->
+        <map force="0.3" zfar="30" />
+    </visual>
+
+    <asset>
+        <!-- 环境 -->
+        <!-- 全景天空盒纹理，文件路径指向 equirectangular 全景图 -->
+        <!-- 使用本地 HDR 全景图作为天空盒 -->
+        <!-- <texture type="skybox" file="skybox_square_compressed.png"/> -->
+        <texture type="skybox" file="R_square.png"/>
+        <!-- <texture type="skybox" file="./desert_sky.png" gridlayout=".U..LFRB.D.." gridsize="3 4"/> -->
+        <!-- 棋盘格地板材质 -->
+        <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4"
+            rgb2="0.1 0.2 0.3"
+            markrgb="0.8 0.8 0.8" width="300" height="300" />
+        <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5"
+            reflectance="0.2" />
+        
+        <!-- 地板纹理材质 -->
+        <texture name="floor_texture" type="2d" file="furniture_sim/common/textures/metal1.png" />
+    <material name="textured_floor" texture="floor_texture" rgba="0.85 0.85 0.85 1" shininess="0.05" reflectance="0.02" texuniform="true" texrepeat="8 8"/>
+
+
+        <!-- 剪刀 -->
+        <mesh name="scissors" file="object_sim/scissors/scissors.stl" scale="1 1 1"/>    
+        <!-- 铅笔1 -->
+        <mesh name="pencil_mesh" file="items/pencil/10303_pencil_V1_iterations-2.obj" scale="0.02 0.02 0.02"/>
+        <texture name="pencil_tex" type="2d" file="items/pencil/10303_pencil_V1_Diffuse.png"/>
+    <material name="pencil_mat" texture="pencil_tex" specular="0.0" shininess="0.1"/>
+        <!-- 黑笔 -->
+        <mesh name="pen_mesh" file="items/pen/10302_Pen_v2_L3.obj" scale="0.02 0.02 0.02"/>
+        <texture name="pen_tex" type="2d" file="items/pen/pen.png"/>
+    <material name="pen_mat" texture="pen_tex" specular="0.0" shininess="0.1"/>
+        <!-- 胶带 -->
+        <mesh name="tape_mesh" file="items/tape/test_tape.obj" scale="0.0035 0.0035 0.0035"/>
+
+    </asset>
+
+    <worldbody>
+    <!-- 环境 -->
+    <!-- 主光：保持方向性以产生阴影，但降低镜面分量 -->
+    <light pos="0 0 3.5" dir="0 0 -1" directional="true" diffuse="0.6 0.6 0.6" specular="0 0 0"/>
+    <!-- 两个补光，位置和强度可微调以控制阴影软化 -->
+    <light pos="-1 1 2.5" diffuse="0.25 0.25 0.25"/>
+    <light pos="1 -1 2.5" diffuse="0.25 0.25 0.25"/>
+        <geom name="floor" size="2 2 0.05" pos="0 0 -0.36" type="plane" material="textured_floor"/>
+        <!-- 桌子 -->
+        <body name="table" pos="0.58 0 -0.36">
+            <include file="furniture_sim/simpleTable/simpleWoodTable_body.xml" />
+        </body>
+        <!-- 笔筒 -->
+        <body name="pen_holder" pos="0.25 0.15 0.5">
+            <joint type="free"/>
+            <!-- 四面墙（厚度 3 mm，高 12 cm） -->
+            <geom type="box" size="0.003 0.06 0.04" pos="0.063 0 0.04" rgba="1 1 1 1"/>
+            <geom type="box" size="0.003 0.06 0.04" pos="-0.063 0 0.04" rgba="1 1 1 1"/>
+            <geom type="box" size="0.06 0.003 0.04" pos="0 0.063 0.04" rgba="1 1 1 1"/>
+            <geom type="box" size="0.06 0.003 0.04" pos="0 -0.063 0.04" rgba="1 1 1 1"/>
+            <!-- 侧柱 -->
+            <geom type="box" size="0.003 0.003 0.04" pos="0.063 0.063 0.04" rgba="1 1 1 1"/>
+            <geom type="box" size="0.003 0.003 0.04" pos="0.063 -0.063 0.04" rgba="1 1 1 1"/>
+            <geom type="box" size="0.003 0.003 0.04" pos="-0.063 0.063 0.04" rgba="1 1 1 1"/>
+            <geom type="box" size="0.003 0.003 0.04" pos="-0.063 -0.063 0.04" rgba="1 1 1 1"/>
+            <!-- 底面（厚度 3 mm） -->
+            <geom type="box" size="0.06 0.06 0.003" pos="0 0 0.003" rgba="1 1 1 1"/>
+        </body>
+        <!-- 橡皮 -->
+        <!-- <body name="eraser_body" pos="0.20 -0.2 0.6">
+            <joint type="free"/>
+            <geom name="eraser_geom"
+                    type="box"
+                    size="0.025 0.01 0.005"  
+                    mass="0.02"               
+                    rgba="0.9 0.35 0.45 1"   
+                    contype="1"
+                    conaffinity="1"
+                    friction="1.0 0.005 0.0001"
+                    solref="0.003 1"          
+                    solimp="0.99 0.99 0.001"  
+                    condim="3"/>            
+        </body> -->
+        <!-- 胶带 -->
+        <!-- <body name="tapebody" pos="0.20 -0.23 0.7">
+            <joint type="free"/>
+            <geom name="tape"
+                type="mesh"
+                mesh="tape_mesh"
+                mass="0.1"              
+                rgba="0.8 0.8 0.9 0.8"
+                contype="1"
+                conaffinity="1"
+                friction="2 0.005 0.0001"   
+                solref="0.003 1"       
+                solimp="0.99 0.99 0.001"     
+                condim="3"/>
+        </body> -->
+        <!-- 剪刀 -->
+        <!-- <body name="scissorsbody" pos="0.35 0.0 0.6">
+            <joint type="free"/>
+            <geom name="scissors"
+                type="mesh"
+                mesh="scissors"
+                mass="0.3"                   
+                rgba="0.2 0.4 0.8 1"
+                contype="1"
+                conaffinity="1"
+                friction="1 0.005 0.0001"   
+                solref="0.003 1"            
+                solimp="0.99 0.99 0.001"    
+                condim="3"/>
+        </body> -->
+
+        <!-- 铅笔 -->
+        <body name="pencil_body" pos="0.3 -0.1 0.6">
+            <joint type="free"/>
+            <geom type="mesh" 
+                  mesh="pencil_mesh" 
+                  material="pencil_mat" 
+                  rgba="1 1 1 1"
+                  size="0.005 0.07"
+                  contype="1"
+                  conaffinity="1"
+                  mass="0.03"
+                  friction="1 0.005 0.0001"
+                  solref="0.003 1"
+                  solimp="0.99 0.99 0.001"
+                  condim="3"/>
+        </body>
+        <!-- 黑笔 -->
+        <body name="pen_body" pos="0.3 -0.1 0.6">
+            <joint type="free"/>
+            <geom type="mesh" 
+                  mesh="pen_mesh" 
+                  material="pen_mat" 
+                  size="0.005 0.07"
+                  contype="1"
+                  conaffinity="1"
+                  mass="0.03"
+                  friction="1.2 0.005 0.0001"
+                  solref="0.003 1"
+                  solimp="0.99 0.99 0.001"
+                  condim="3"
+                  rgba="0.1 0.3 0.5 1"
+                  />
+        </body>
+    </worldbody>
+</mujoco>

@@ -1,3 +1,7 @@
+# 数据文件夹
 finetuned_models/*
 demo_data/*
 outputs/*
+
+# Python缓存文件
+__pycache__/

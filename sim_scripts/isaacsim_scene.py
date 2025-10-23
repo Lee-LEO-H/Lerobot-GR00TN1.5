@@ -23,6 +23,7 @@ from image_socket import ImageSender
 from articulation_socket import ActionReceiverThread, ArticulationSender
 import time
 import argparse
+import os
 argparser = argparse.ArgumentParser()
 argparser.add_argument(
     "--imgStream",
@@ -54,8 +55,9 @@ args = argparser.parse_args()
 # create the world 
 my_world = World(stage_units_in_meters=1.0)
 
-# add grasp_test.usd to the world
-grasp_test_USD_path ='/home/b760m/isaacsim/lerobot_sim/grasp_test.usd'
+# add grasp_test.usd to the world 改为相对路径
+grasp_test_USD_path = os.path.join(os.path.dirname(__file__), "isaac_models", "grasp_test.usd")
+# grasp_test_USD_path ='/home/b760m/isaacsim/lerobot_sim/grasp_test.usd'
 add_reference_to_stage(usd_path=grasp_test_USD_path, prim_path="/World")
 my_so101 = my_world.scene.add(
     Robot(
