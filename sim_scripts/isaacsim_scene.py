@@ -57,11 +57,12 @@ my_world = World(stage_units_in_meters=1.0)
 
 # add grasp_test.usd to the world 改为相对路径
 grasp_test_USD_path = os.path.join(os.path.dirname(__file__), "isaac_models", "grasp_test.usd")
+# grasp_test_USD_path = "~/isaacsim/isaac_models/grasp_test.usd"
 # grasp_test_USD_path ='/home/b760m/isaacsim/lerobot_sim/grasp_test.usd'
 add_reference_to_stage(usd_path=grasp_test_USD_path, prim_path="/World")
 my_so101 = my_world.scene.add(
     Robot(
-        prim_path="/World/so101_new_calib_01", 
+        prim_path="/World/so101_new_calib_02", 
         name="my_so101", 
         scale=np.array([1, 1, 1])
     )
@@ -104,7 +105,7 @@ cup = my_world.scene.add(
 
 # add camera1 to the world
 camera_wrist = Camera(
-    prim_path="/World/so101_new_calib_01/gripper_link/Camera_wrist",
+    prim_path="/World/so101_new_calib_02/gripper_link/Camera_wrist",
     name="Camera_wrist",
     frequency = 30,
     resolution=(640, 480)
@@ -201,6 +202,8 @@ if args.sendObs == "True" or args.all == "True":
 #     sender_thread.start()  
 # main
 
+
+
 def main():
     if args.receiveAction == "True" or args.all == "True":
         apply_so101_action()
@@ -237,8 +240,7 @@ except KeyboardInterrupt:
     print("Simulation 被用户中断。")
 finally:
     # 场景发送端关闭
-    if image_sender:
-        image_sender.close()
+
     if observation_sender:
         observation_sender.close()
     # 场景接收端关闭（接收动作）
