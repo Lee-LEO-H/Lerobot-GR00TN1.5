@@ -70,7 +70,7 @@ https://github.com/user-attachments/assets/a831f46b-edef-4787-a5d3-5251c5ec3f4a
 - `固定部署在家庭场景`:如儿童书桌
 - 遥操平台准备接入基于 `Vision Pro` 等混合现实显示设备,使用姿态数据进行操作
 
-### 具体实现过程可查阅Document目录下的教程 ^_^
+### 具体实现过程可查阅docs目录下的教程 ^_^
 
 ----
 
