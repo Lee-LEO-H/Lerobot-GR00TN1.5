@@ -47,11 +47,11 @@ https://github.com/user-attachments/assets/c786341e-9a82-4005-9905-f5d889dbb5be
 ### 2）真机推理效果
 我们在不同`环境/光线/任务场景`下进行了多次验证,展示了本项目已达到相对**稳定,平滑,迅捷,精确**的指标
 
-- 实验室环境推理：`4090`
+- 实验室环境推理：`4090`(speed X1.0）
 
 https://github.com/user-attachments/assets/08f7c784-6e52-46de-a75d-054de376decd
 
-- 黑客松比赛现场环境推理: `Jetson Thor`
+- 黑客松比赛现场环境推理: `Jetson Thor`(speed X1.0）
 
 https://github.com/user-attachments/assets/c7de2c26-3cc9-4c30-a83d-2f3bfa16a6dd
 
@@ -69,6 +69,8 @@ https://github.com/user-attachments/assets/a831f46b-edef-4787-a5d3-5251c5ec3f4a
 - `无人机底座`:形成更高自由度的操作手平台
 - `固定部署在家庭场景`:如儿童书桌
 - 遥操平台准备接入基于 `Vision Pro` 等混合现实显示设备,使用姿态数据进行操作
+
+### 具体实现过程可查阅Document目录下的教程 ^_^
 
 ----
 
